@@ -1,4 +1,5 @@
 import { defineAuth } from '@aws-amplify/backend';
+import { preAuthentication } from './pre-authentication/resource';
 
 /**
  * Define and configure your auth resource
@@ -8,4 +9,10 @@ export const auth = defineAuth({
   loginWith: {
     email: true,
   },
+  triggers: {
+    preAuthentication
+  },
+  access: (allow) => [
+    allow.resource(preAuthentication).to(["manageUsers"])
+  ]
 });
