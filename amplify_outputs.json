@@ -1,9 +1,10 @@
 {
   "auth": {
-    "user_pool_id": "us-east-1_qiLThqeRI",
-    "aws_region": "us-east-1",
-    "user_pool_client_id": "664thuoaetr0epm3sapul47mc4",
-    "identity_pool_id": "us-east-1:702427c8-24ea-4c9e-803b-a9b3ba2814fa",
+    "user_pool_id": "ap-northeast-2_7c00c6cMH",
+    "aws_region": "ap-northeast-2",
+    "user_pool_client_id": "4ofrkdajfa1df5vsbpakbl5459",
+    "identity_pool_id": "ap-northeast-2:bde54275-78c9-453a-bd24-828923c011cc",
+    "mfa_methods": [],
     "standard_required_attributes": [
       "email"
     ],
@@ -13,6 +14,7 @@
     "user_verification_types": [
       "email"
     ],
+    "mfa_configuration": "NONE",
     "password_policy": {
       "min_length": 8,
       "require_numbers": true,
@@ -20,20 +22,46 @@
       "require_uppercase": true,
       "require_symbols": true
     },
+    "oauth": {
+      "identity_providers": [
+        "GOOGLE"
+      ],
+      "redirect_sign_in_uri": [
+        "http://localhost:3000/profile",
+        "https://test.d2qztjbth336u5.amplifyapp.com/profile",
+        "https://main.plazai.io/profile"
+      ],
+      "redirect_sign_out_uri": [
+        "http://localhost:3000/",
+        "https://test.d2qztjbth336u5.amplifyapp.com",
+        "https://main.plazai.io"
+      ],
+      "response_type": "code",
+      "scopes": [
+        "phone",
+        "email",
+        "openid",
+        "profile",
+        "aws.cognito.signin.user.admin"
+      ],
+      "domain": "760dae6f596debe21a57.auth.ap-northeast-2.amazoncognito.com"
+    },
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://q5kewjdvnfdazatr3bq4hvsoyq.appsync-api.us-east-1.amazonaws.com/graphql",
-    "aws_region": "us-east-1",
-    "default_authorization_type": "AMAZON_COGNITO_USER_POOLS",
+    "url": "https://xa47sfgnazb35pktmksbpaxfr4.appsync-api.ap-northeast-2.amazonaws.com/graphql",
+    "aws_region": "ap-northeast-2",
+    "api_key": "da2-svcarjp7hjbklpyf33ioybhfym",
+    "default_authorization_type": "API_KEY",
     "authorization_types": [
+      "AMAZON_COGNITO_USER_POOLS",
       "AWS_IAM"
     ],
     "model_introspection": {
       "version": 1,
       "models": {
-        "Todo": {
-          "name": "Todo",
+        "User": {
+          "name": "User",
           "fields": {
             "id": {
               "name": "id",
@@ -42,10 +70,86 @@
               "isRequired": true,
               "attributes": []
             },
-            "content": {
-              "name": "content",
+            "username": {
+              "name": "username",
               "isArray": false,
               "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "accountId": {
+              "name": "accountId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "avatar": {
+              "name": "avatar",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "AWSEmail",
+              "isRequired": false,
+              "attributes": []
+            },
+            "phone": {
+              "name": "phone",
+              "isArray": false,
+              "type": "AWSPhone",
+              "isRequired": false,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": {
+                "enum": "Status"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamMember": {
+              "name": "teamMember",
+              "isArray": true,
+              "type": {
+                "model": "TeamMember"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userId"
+                ]
+              }
+            },
+            "teamSeat": {
+              "name": "teamSeat",
+              "isArray": true,
+              "type": {
+                "model": "TeamSeat"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userId"
+                ]
+              }
+            },
+            "lastLoginMemberId": {
+              "name": "lastLoginMemberId",
+              "isArray": false,
+              "type": "ID",
               "isRequired": false,
               "attributes": []
             },
@@ -67,7 +171,7 @@
             }
           },
           "syncable": true,
-          "pluralName": "Todos",
+          "pluralName": "Users",
           "attributes": [
             {
               "type": "model",
@@ -78,10 +182,17 @@
               "properties": {
                 "rules": [
                   {
-                    "provider": "userPools",
-                    "ownerField": "owner",
-                    "allow": "owner",
-                    "identityClaim": "cognito:username",
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  },
+                  {
+                    "allow": "private",
                     "operations": [
                       "create",
                       "update",
@@ -98,11 +209,2222 @@
             "primaryKeyFieldName": "id",
             "sortKeyFieldNames": []
           }
+        },
+        "Team": {
+          "name": "Team",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "icon": {
+              "name": "icon",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "adminId": {
+              "name": "adminId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "level": {
+              "name": "level",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "region": {
+              "name": "region",
+              "isArray": false,
+              "type": {
+                "enum": "SubscriptionRegion"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "inviteCode": {
+              "name": "inviteCode",
+              "isArray": false,
+              "type": {
+                "model": "InviteCode"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "HAS_ONE",
+                "associatedWith": [
+                  "teamId"
+                ],
+                "targetNames": []
+              }
+            },
+            "members": {
+              "name": "members",
+              "isArray": true,
+              "type": {
+                "model": "TeamMember"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "teamId"
+                ]
+              }
+            },
+            "pool": {
+              "name": "pool",
+              "isArray": true,
+              "type": {
+                "model": "SubscriptionPool"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "teamId"
+                ]
+              }
+            },
+            "subscriptions": {
+              "name": "subscriptions",
+              "isArray": true,
+              "type": {
+                "model": "TeamSubscriptions"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "teamId"
+                ]
+              }
+            },
+            "teamSeat": {
+              "name": "teamSeat",
+              "isArray": true,
+              "type": {
+                "model": "TeamSeat"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "teamId"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Teams",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  },
+                  {
+                    "allow": "private",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "TeamMember": {
+          "name": "TeamMember",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "team": {
+              "name": "team",
+              "isArray": false,
+              "type": {
+                "model": "Team"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "teamId"
+                ]
+              }
+            },
+            "userId": {
+              "name": "userId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userId"
+                ]
+              }
+            },
+            "alias": {
+              "name": "alias",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "title": {
+              "name": "title",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "role": {
+              "name": "role",
+              "isArray": false,
+              "type": {
+                "enum": "UserRole"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "joinAt": {
+              "name": "joinAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": {
+                "enum": "Status"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "loginAt": {
+              "name": "loginAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "TeamMembers",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "teamMembersByUserIdAndLoginAt",
+                "queryField": "listTeamMemberByUserIdAndLoginAt",
+                "fields": [
+                  "userId",
+                  "loginAt"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  },
+                  {
+                    "allow": "private",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "InviteCode": {
+          "name": "InviteCode",
+          "fields": {
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "team": {
+              "name": "team",
+              "isArray": false,
+              "type": {
+                "model": "Team"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "teamId"
+                ]
+              }
+            },
+            "code": {
+              "name": "code",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "used": {
+              "name": "used",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createAt": {
+              "name": "createAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "expiredAt": {
+              "name": "expiredAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "InviteCodes",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "fields": [
+                  "teamId"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "inviteCodesByCode",
+                "queryField": "listInviteCode",
+                "fields": [
+                  "code"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": true,
+            "primaryKeyFieldName": "teamId",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Product": {
+          "name": "Product",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "shortName": {
+              "name": "shortName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "icon": {
+              "name": "icon",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "productType": {
+              "name": "productType",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": true,
+              "type": {
+                "model": "ProductDescription"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "productId"
+                ]
+              }
+            },
+            "publish": {
+              "name": "publish",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "packages": {
+              "name": "packages",
+              "isArray": true,
+              "type": {
+                "model": "ProductPackage"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "productId"
+                ]
+              }
+            },
+            "sort": {
+              "name": "sort",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            }
+          },
+          "syncable": true,
+          "pluralName": "Products",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ProductDescription": {
+          "name": "ProductDescription",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "productId": {
+              "name": "productId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "product": {
+              "name": "product",
+              "isArray": false,
+              "type": {
+                "model": "Product"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "productId"
+                ]
+              }
+            },
+            "imageKey": {
+              "name": "imageKey",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "remark": {
+              "name": "remark",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "publish": {
+              "name": "publish",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "order": {
+              "name": "order",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "region": {
+              "name": "region",
+              "isArray": false,
+              "type": {
+                "enum": "SubscriptionRegion"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ProductDescriptions",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "SubscriptionPool": {
+          "name": "SubscriptionPool",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "team": {
+              "name": "team",
+              "isArray": false,
+              "type": {
+                "model": "Team"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "teamId"
+                ]
+              }
+            },
+            "subscriptionId": {
+              "name": "subscriptionId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "packageId": {
+              "name": "packageId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "package": {
+              "name": "package",
+              "isArray": false,
+              "type": {
+                "model": "ProductPackage"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "packageId"
+                ]
+              }
+            },
+            "used": {
+              "name": "used",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "periodicStart": {
+              "name": "periodicStart",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "periodicEnd": {
+              "name": "periodicEnd",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "capacity": {
+              "name": "capacity",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "priority": {
+              "name": "priority",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "startAt": {
+              "name": "startAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "updateAt": {
+              "name": "updateAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "SubscriptionPools",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "subscriptionPoolsByTeamId",
+                "queryField": "listSubscriptionPoolByTeamId",
+                "fields": [
+                  "teamId"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "subscriptionPoolsBySubscriptionId",
+                "queryField": "listSubscriptionPoolBySubscriptionId",
+                "fields": [
+                  "subscriptionId"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "TeamAsset": {
+          "name": "TeamAsset",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "productId": {
+              "name": "productId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "productType": {
+              "name": "productType",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "count": {
+              "name": "count",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "expireTime": {
+              "name": "expireTime",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "startAt": {
+              "name": "startAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "updateAt": {
+              "name": "updateAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "TeamAssets",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "teamAssetsByTeamId",
+                "queryField": "listTeamAssetByTeamId",
+                "fields": [
+                  "teamId"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "TeamAssetUsed": {
+          "name": "TeamAssetUsed",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "productType": {
+              "name": "productType",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "used": {
+              "name": "used",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "useTime": {
+              "name": "useTime",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "TeamAssetUseds",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "SubscriptionPoolHistory": {
+          "name": "SubscriptionPoolHistory",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "packageId": {
+              "name": "packageId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "used": {
+              "name": "used",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "periodicStart": {
+              "name": "periodicStart",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "periodicEnd": {
+              "name": "periodicEnd",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "capacity": {
+              "name": "capacity",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "SubscriptionPoolHistories",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Order": {
+          "name": "Order",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userId": {
+              "name": "userId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "subscriptionId": {
+              "name": "subscriptionId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "purchaseType": {
+              "name": "purchaseType",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamSeatNum": {
+              "name": "teamSeatNum",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "duration": {
+              "name": "duration",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "totalAmount": {
+              "name": "totalAmount",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamSeat": {
+              "name": "teamSeat",
+              "isArray": true,
+              "type": {
+                "model": "TeamSeat"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "orderId"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Orders",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "TeamSeat": {
+          "name": "TeamSeat",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "team": {
+              "name": "team",
+              "isArray": false,
+              "type": {
+                "model": "Team"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "teamId"
+                ]
+              }
+            },
+            "userId": {
+              "name": "userId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userId"
+                ]
+              }
+            },
+            "orderId": {
+              "name": "orderId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "order": {
+              "name": "order",
+              "isArray": false,
+              "type": {
+                "model": "Order"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "orderId"
+                ]
+              }
+            },
+            "expirationTime": {
+              "name": "expirationTime",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "TeamSeats",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "TeamExperimentRecord": {
+          "name": "TeamExperimentRecord",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userId": {
+              "name": "userId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "subscriptionId": {
+              "name": "subscriptionId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "TeamExperimentRecords",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Subscription2Package": {
+          "name": "Subscription2Package",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "subscriptionId": {
+              "name": "subscriptionId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "subscription": {
+              "name": "subscription",
+              "isArray": false,
+              "type": {
+                "model": "Subscriptions"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "subscriptionId"
+                ]
+              }
+            },
+            "packageId": {
+              "name": "packageId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "package": {
+              "name": "package",
+              "isArray": false,
+              "type": {
+                "model": "ProductPackage"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "packageId"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Subscription2Packages",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Subscriptions": {
+          "name": "Subscriptions",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name_en": {
+              "name": "name_en",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name_ja": {
+              "name": "name_ja",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "price": {
+              "name": "price",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "currency": {
+              "name": "currency",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "level": {
+              "name": "level",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "description_en": {
+              "name": "description_en",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "description_ja": {
+              "name": "description_ja",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "admin_description": {
+              "name": "admin_description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "region": {
+              "name": "region",
+              "isArray": false,
+              "type": {
+                "enum": "SubscriptionRegion"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "priority": {
+              "name": "priority",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "expireInDays": {
+              "name": "expireInDays",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "isTrial": {
+              "name": "isTrial",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "activatableProductNum": {
+              "name": "activatableProductNum",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "publish": {
+              "name": "publish",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "sort": {
+              "name": "sort",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "packages": {
+              "name": "packages",
+              "isArray": true,
+              "type": {
+                "model": "Subscription2Package"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "subscriptionId"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Subscriptions",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "TeamSubscriptions": {
+          "name": "TeamSubscriptions",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "teamId": {
+              "name": "teamId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "team": {
+              "name": "team",
+              "isArray": false,
+              "type": {
+                "model": "Team"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "teamId"
+                ]
+              }
+            },
+            "subscriptionId": {
+              "name": "subscriptionId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "availableAt": {
+              "name": "availableAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "expireAt": {
+              "name": "expireAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "priority": {
+              "name": "priority",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "TeamSubscriptions",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ProductPackage": {
+          "name": "ProductPackage",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "productId": {
+              "name": "productId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "product": {
+              "name": "product",
+              "isArray": false,
+              "type": {
+                "model": "Product"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "productId"
+                ]
+              }
+            },
+            "packages": {
+              "name": "packages",
+              "isArray": true,
+              "type": {
+                "model": "SubscriptionPool"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "packageId"
+                ]
+              }
+            },
+            "subscriptions": {
+              "name": "subscriptions",
+              "isArray": true,
+              "type": {
+                "model": "Subscription2Package"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "packageId"
+                ]
+              }
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "count": {
+              "name": "count",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "unit": {
+              "name": "unit",
+              "isArray": false,
+              "type": {
+                "enum": "PackageUnit"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "periodic": {
+              "name": "periodic",
+              "isArray": false,
+              "type": {
+                "enum": "Periodic"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "region": {
+              "name": "region",
+              "isArray": false,
+              "type": {
+                "enum": "SubscriptionRegion"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "isExpire": {
+              "name": "isExpire",
+              "isArray": false,
+              "type": {
+                "enum": "ExpireType"
+              },
+              "isRequired": true,
+              "attributes": []
+            },
+            "availableAt": {
+              "name": "availableAt",
+              "isArray": false,
+              "type": "AWSDate",
+              "isRequired": false,
+              "attributes": []
+            },
+            "expireAt": {
+              "name": "expireAt",
+              "isArray": false,
+              "type": "AWSDate",
+              "isRequired": false,
+              "attributes": []
+            },
+            "expireInDays": {
+              "name": "expireInDays",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            }
+          },
+          "syncable": true,
+          "pluralName": "ProductPackages",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete",
+                      "update"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
         }
       },
-      "enums": {},
+      "enums": {
+        "TeamType": {
+          "name": "TeamType",
+          "values": [
+            "TEAM",
+            "PERSONAL"
+          ]
+        },
+        "Status": {
+          "name": "Status",
+          "values": [
+            "ACTIVE",
+            "PENDING",
+            "SUSPEND",
+            "CLOSED"
+          ]
+        },
+        "UserRole": {
+          "name": "UserRole",
+          "values": [
+            "ADMIN",
+            "MEMBER"
+          ]
+        },
+        "Periodic": {
+          "name": "Periodic",
+          "values": [
+            "DAY",
+            "WEEK",
+            "MONTH",
+            "YEAR"
+          ]
+        },
+        "PackageUnit": {
+          "name": "PackageUnit",
+          "values": [
+            "TIMES",
+            "SECOND"
+          ]
+        },
+        "ExpireType": {
+          "name": "ExpireType",
+          "values": [
+            "NEVER",
+            "RELATIVE",
+            "ABSOLUTE"
+          ]
+        },
+        "PriceCurrency": {
+          "name": "PriceCurrency",
+          "values": [
+            "CNY",
+            "USD",
+            "EUR",
+            "JPY",
+            "GBP"
+          ]
+        },
+        "SubscriptionRegion": {
+          "name": "SubscriptionRegion",
+          "values": [
+            "GLOBAL",
+            "CN",
+            "US",
+            "EU",
+            "JP",
+            "UK"
+          ]
+        }
+      },
       "nonModels": {}
     }
+  },
+  "storage": {
+    "aws_region": "ap-northeast-2",
+    "bucket_name": "amplify-awsamplifygen2-wa-myprojectfilesbucket89ac-lheomfugj9rz"
   },
   "version": "1"
 }
